@@ -1,9 +1,10 @@
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 from . import views
-# from serializers import RegisterView
+
+router = DefaultRouter()
+router.register(r'', views.ReportViewSet)
 
 urlpatterns = [
-    path('', views.ReportListCreateView.as_view(), name='report-list-create'),
-    path('<int:pk>/', views.ReportDetailView.as_view(), name='report-detail'),
-    # path('create/',RegisterView.as_view(), name='register'),
+    path('', include(router.urls)),
 ]

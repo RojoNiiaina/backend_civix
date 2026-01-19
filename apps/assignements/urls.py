@@ -1,7 +1,10 @@
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 from . import views
 
+router = DefaultRouter()
+router.register(r'', views.AssignmentViewSet)
+
 urlpatterns = [
-    path('', views.AssignmentListCreateView.as_view(), name='assignment-list-create'),
-    path('<int:pk>/', views.AssignmentDetailView.as_view(), name='assignment-detail'),
+    path('', include(router.urls)),
 ]

@@ -1,10 +1,11 @@
 from rest_framework import serializers
 from apps.reports.models import Report
+from apps.users.serializers import UserSerializer
 from django.conf import settings
 from .models import Comment
 
 class CommentSerializer(serializers.ModelSerializer):
-    user = serializers.StringRelatedField(read_only=True)
+    user = UserSerializer(read_only=True)
     report = serializers.PrimaryKeyRelatedField(
         queryset=Report.objects.all(),  # ✅ obligatoire
     )

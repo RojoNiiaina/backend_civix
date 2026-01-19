@@ -1,7 +1,10 @@
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 from . import views
 
+router = DefaultRouter()
+router.register(r'', views.CategoryViewSet)
+
 urlpatterns = [
-    path('', views.CategoryListCreateView.as_view(), name='category-list-create'),
-    path('<int:pk>/', views.CategoryDetailView.as_view(), name='category-detail'),
+    path('', include(router.urls)),
 ]

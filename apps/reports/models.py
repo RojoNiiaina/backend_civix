@@ -10,23 +10,32 @@ class Report(models.Model):
         ('rejete', 'Rejeté'),
     ]
 
-    PRIORITY_CHOICES = [
-        ('basse', 'Basse'),
-        ('moyenne', 'Moyenne'),
-        ('haute', 'Haute'),
-        ('urgente', 'Urgente'),
-    ]
-
     id = models.BigAutoField(primary_key=True)
+    like = models.IntegerField(default=0)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='reports')
-    category_id = models.IntegerField(null=True, blank=True)  # ou ForeignKey si tu crées une table Category
     description = models.TextField()
-    image = models.ImageField(upload_to='reports/', null=True, blank=True)
-    latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
-    longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
+    lieu = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True
+    )
+    image = models.ImageField(upload_to='', null=True, blank=True)
     statut = models.CharField(max_length=20, choices=STATUS_CHOICES, default='en_attente')
-    priorite = models.CharField(max_length=20, choices=PRIORITY_CHOICES, default='moyenne')
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"Report #{self.id} - {self.statut}"
+
+
+class Like(models.Model):
+    """Modèle pour suivre les likes des utilisateurs sur les reports"""
+    id = models.BigAutoField(primary_key=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='likes')
+    report = models.ForeignKey(Report, on_delete=models.CASCADE, related_name='likes')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ['user', 'report']  # Un utilisateur ne peut liker qu'une fois un report
+
+    def __str__(self):
+        return f"{self.user.nom} liked Report #{self.report.id}"
