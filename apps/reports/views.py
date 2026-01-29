@@ -45,6 +45,47 @@ class ReportViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(reports, many=True)
         return Response(serializer.data)
     
+    @action(
+    detail=True,
+    methods=['patch'],
+    permission_classes=[permissions.IsAuthenticated]
+    )
+    def approve(self, request, pk=None):
+        """
+        Approuver un report (admin uniquement)
+        """
+        report = self.get_object()
+
+        if report.statut == "approuve":
+            return Response(
+                {"detail": "Ce report est déjà approuvé."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        report.statut = "approuve"
+        report.save()
+
+        serializer = self.get_serializer(report)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+    @action(
+    detail=True,
+    methods=['patch'],
+    permission_classes=[permissions.IsAuthenticated]
+    )
+    def reject(self, request, pk=None):
+        """
+        Refuser un report (admin uniquement)
+        """
+        report = self.get_object()
+        report.statut = "rejete"
+        report.save()
+
+        serializer = self.get_serializer(report)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
     @action(detail=True, methods=['post'])
     def like(self, request, pk=None):
         """Like ou unlike un report"""

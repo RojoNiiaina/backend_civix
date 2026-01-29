@@ -5,7 +5,7 @@ from django.conf import settings
 
 class ReportSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
-    image = serializers.SerializerMethodField()
+    image_url = serializers.SerializerMethodField()
     like_count = serializers.SerializerMethodField()
     is_liked = serializers.SerializerMethodField()
 
@@ -13,12 +13,12 @@ class ReportSerializer(serializers.ModelSerializer):
         model = Report
         fields = [
             'id', 'user',
-            'description', 'lieu', 'image',
+            'description', 'lieu', 'image', 'image_url',
             'statut', 'created_at', 'like', 'like_count', 'is_liked'
         ]
-        read_only_fields = ['id', 'user', 'created_at', 'like', 'like_count', 'is_liked']
+        read_only_fields = ['id', 'user', 'created_at', 'like', 'like_count', 'is_liked', 'image_url']
 
-    def get_image(self, obj):
+    def get_image_url(self, obj):
         if obj.image:
             request = self.context.get('request')
             if request:

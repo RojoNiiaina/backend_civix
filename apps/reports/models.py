@@ -5,6 +5,7 @@ from django.conf import settings
 class Report(models.Model):
     STATUS_CHOICES = [
         ('en_attente', 'En attente'),
+        ('approuve', 'Approuvé'),
         ('en_cours', 'En cours'),
         ('resolu', 'Résolu'),
         ('rejete', 'Rejeté'),

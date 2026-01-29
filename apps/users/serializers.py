@@ -8,8 +8,17 @@ from django.contrib.auth.password_validation import validate_password
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'nom', 'email', 'role', 'statut', 'date_inscription']
+        fields = ['id', 'nom', 'email', 'role', 'statut', 'date_inscription', 'cin', 'photo', 'telephone']
         read_only_fields = ['id', 'date_inscription']
+    
+    def get_photo_url(self, obj):
+        if obj.photo:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.photo.url)
+            # Fallback si pas de request dans le contexte
+            return f"http://localhost:8000{obj.photo.url}"
+        return None
 
 
 User = get_user_model()
@@ -19,7 +28,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'nom', 'email', 'password', 'role', 'statut')
+        fields = ('id', 'nom', 'email', 'password', 'role', 'statut', 'cin', 'photo', 'telephone')
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):

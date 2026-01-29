@@ -47,6 +47,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
 
+    photo = models.ImageField(upload_to='users/photos/', null=True, blank=True)
+    cin = models.CharField(max_length=20, blank=True, null=True)
+    telephone = models.CharField(max_length=20, blank=True, null=True)
+
     objects = UserManager()
 
     USERNAME_FIELD = 'email'
