@@ -49,7 +49,7 @@ class ReportViewSet(viewsets.ModelViewSet):
     @action(
     detail=True,
     methods=['patch'],
-    permission_classes=[permissions.IsAuthenticated]
+    permission_classes=[permissions.IsAuthenticated, IsOwnerOrAdmin]
     )
     def approve(self, request, pk=None):
         """
@@ -68,9 +68,8 @@ class ReportViewSet(viewsets.ModelViewSet):
 
         # Create notification for the report owner
         Notification.objects.create(
-            report=report,
             user=report.user,  # The report owner, not the admin who approves
-            message="Votre rapport a été approuvé"
+            message="Your report has been approved"
         )
 
         serializer = self.get_serializer(report)
@@ -80,7 +79,7 @@ class ReportViewSet(viewsets.ModelViewSet):
     @action(
     detail=True,
     methods=['patch'],
-    permission_classes=[permissions.IsAuthenticated]
+    permission_classes=[permissions.IsAuthenticated, IsOwnerOrAdmin]
     )
     def reject(self, request, pk=None):
         """
@@ -115,14 +114,6 @@ class ReportViewSet(viewsets.ModelViewSet):
         
         # Rafraîchir le report depuis la base de données pour avoir les valeurs à jour
         report.refresh_from_db()
-
-        # Create notification for the report owner
-        if report.user != request.user:
-            Notification.objects.create(
-                report=report,
-                user=report.user,  # The report owner, not the admin who approves
-                message="Votre rapport a été aimé par " + request.user.nom
-            )
         
         serializer = self.get_serializer(report)
         return Response({

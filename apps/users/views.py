@@ -22,10 +22,20 @@ class RegisterView(generics.CreateAPIView):
 
 class MeView(APIView):
     """
-    Vue pour récupérer l'utilisateur connecté
+    Vue pour récupérer et mettre à jour l'utilisateur connecté
     """
     permission_classes = [permissions.IsAuthenticated]
     
     def get(self, request):
         serializer = UserSerializer(request.user)
         return Response(serializer.data)
+    
+    def patch(self, request):
+        """
+        Mettre à jour le profil de l'utilisateur connecté
+        """
+        serializer = UserSerializer(request.user, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=400)

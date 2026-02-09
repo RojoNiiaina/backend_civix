@@ -17,6 +17,7 @@ urlpatterns = [
     path('api/notifications/', include('apps.notification.urls')),
     path('api/assignements/', include('apps.assignements.urls')),
     path('api/categories/', include('apps.category.urls')),
+    path("api/chat/", include("apps.chat.urls")),
 
     path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),

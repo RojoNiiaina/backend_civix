@@ -5,6 +5,7 @@ from django.conf import settings
 class Notification(models.Model):
     id = models.BigAutoField(primary_key=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='notifications')
+    report = models.ForeignKey('reports.Report', on_delete=models.CASCADE, related_name='notifications', null=True, blank=True)
     message = models.TextField()
     lu = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)

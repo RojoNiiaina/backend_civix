@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     'apps.notification',
     'apps.reports',
     'apps.users',
+    'apps.chat',
     'apps.category',
     'rest_framework_simplejwt.token_blacklist',
 ]
@@ -116,9 +117,13 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'civix.wsgi.application'
-# Autoriser localhost:3000
+# Autoriser localhost:3000 et mobile
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
+    "http://192.168.42.150:3000",
+    "http://192.168.42.150:8081",
+    "http://192.168.42.150:19006",
+    "exp://192.168.42.150:8081",
 ]
 
 # Autoriser les requêtes CORS pour les fichiers médias
@@ -180,6 +185,17 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+    "192.168.42.176",
+    "192.168.0.156",
+    "192.168.42.114",
+    "192.168.0.154",
+    "192.168.42.150"
+]
+
 
 
 # Internationalization

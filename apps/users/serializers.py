@@ -6,9 +6,11 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 
 class UserSerializer(serializers.ModelSerializer):
+    photo_url = serializers.SerializerMethodField()
+    
     class Meta:
         model = User
-        fields = ['id', 'nom', 'email', 'role', 'statut', 'date_inscription', 'cin', 'photo', 'telephone']
+        fields = ['id', 'nom', 'email', 'role', 'statut', 'date_inscription', 'cin', 'photo', 'photo_url', 'telephone']
         read_only_fields = ['id', 'date_inscription']
     
     def get_photo_url(self, obj):
