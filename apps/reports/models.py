@@ -21,6 +21,8 @@ class Report(models.Model):
         blank=True
     )
     image = models.ImageField(upload_to='', null=True, blank=True)
+    image1 = models.ImageField(upload_to='', null=True, blank=True)
+    image2 = models.ImageField(upload_to='', null=True, blank=True)
     statut = models.CharField(max_length=20, choices=STATUS_CHOICES, default='en_attente')
     created_at = models.DateTimeField(auto_now_add=True)
 
