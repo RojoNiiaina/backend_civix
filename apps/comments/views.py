@@ -28,7 +28,7 @@ class CommentViewSet(viewsets.ModelViewSet):
             Notification.objects.create(
                 report=comment.report,
                 user=comment.report.user,
-                message=f"Your report has been commented by {self.request.user.nom}"
+                message=f"Votre rapport a été commenté par {self.request.user.nom}"
             )
     
     @action(detail=False, methods=['get'], permission_classes=[permissions.IsAuthenticated])
