@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    'channels',
     'corsheaders',
     'rest_framework',
     'django_filters',
@@ -62,6 +63,7 @@ INSTALLED_APPS = [
     'apps.users',
     'apps.chat',
     'apps.category',
+    'apps.live',
     'rest_framework_simplejwt.token_blacklist',
 ]
 
@@ -124,6 +126,23 @@ CORS_ALLOWED_ORIGINS = [
     "http://192.168.42.150:8081",
     "http://192.168.42.150:19006",
     "exp://192.168.42.150:8081",
+    "http://192.168.0.157:3000",
+    "http://192.168.0.157:8081",
+    "http://192.168.0.157:19006",
+    "exp://192.168.0.157:8081",
+]
+
+# Autoriser les origines WebSocket
+ALLOWED_WS_ORIGINS = [
+    "http://localhost:3000",
+    "http://192.168.42.150:3000",
+    "http://192.168.42.150:8081",
+    "http://192.168.42.150:19006",
+    "exp://192.168.42.150:8081",
+    "http://192.168.0.157:3000",
+    "http://192.168.0.157:8081",
+    "http://192.168.0.157:19006",
+    "exp://192.168.0.157:8081",
 ]
 
 # Autoriser les requêtes CORS pour les fichiers médias
@@ -168,6 +187,14 @@ DATABASES = {
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Channels settings
+ASGI_APPLICATION = 'civix.application'
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer'
+    }
+}
+
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
 
@@ -196,7 +223,9 @@ ALLOWED_HOSTS = [
     "192.168.42.206",
     "192.168.42.98",
     "127.0.0.1",
-    "192.168.43.181"
+    "192.168.43.181",
+    "192.168.42.3",
+    "192.168.42.120"
 ]
 
 
