@@ -16,6 +16,10 @@ from channels.security.websocket import AllowedHostsOriginValidator
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'civix.settings')
 
+# Initialize Django
+import django
+django.setup()
+
 import apps.live.routing
 
 application = ProtocolTypeRouter({

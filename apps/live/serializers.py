@@ -37,7 +37,8 @@ class LiveStreamSerializer(serializers.ModelSerializer):
                 'id': user.id,
                 'nom': getattr(user, 'nom', None) or user.email,
                 'email': user.email,
-                'photo': photo_url
+                'photo': photo_url,
+                'role': getattr(user, 'role', 'user')
             }
         except Exception as e:
             print(f"DEBUG: Error getting streamer info: {e}")
@@ -45,7 +46,8 @@ class LiveStreamSerializer(serializers.ModelSerializer):
                 'id': obj.streamer.id,
                 'nom': obj.streamer.email,
                 'email': obj.streamer.email,
-                'photo': None
+                'photo': None,
+                'role': getattr(obj.streamer, 'role', 'user')
             }
     
     def get_thumbnail_url(self, obj):

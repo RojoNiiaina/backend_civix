@@ -236,6 +236,22 @@ class LiveStreamConsumer(AsyncWebsocketConsumer):
             'ended_at': event.get('ended_at')
         }))
 
+    async def broadcast_viewer_count(self, count):
+        """Broadcast viewer count to all connected clients"""
+        await self.channel_layer.group_send(
+            self.stream_group_name,
+            {
+                'type': 'viewer_count_broadcast',
+                'count': count
+            }
+        )
+
+    async def viewer_count_broadcast(self, event):
+        await self.send(text_data=json.dumps({
+            'type': 'viewer_count',
+            'count': event['count']
+        }))
+
     # Database operations
     @database_sync_to_async
     def get_stream(self):
@@ -270,6 +286,9 @@ class LiveStreamConsumer(AsyncWebsocketConsumer):
                 if stream.viewer_count > stream.max_viewers:
                     stream.max_viewers = stream.viewer_count
                 stream.save()
+                
+                # Broadcast viewer count update to all clients
+                asyncio.create_task(self.broadcast_viewer_count(stream.viewer_count))
         except LiveStream.DoesNotExist:
             pass
 
@@ -293,6 +312,9 @@ class LiveStreamConsumer(AsyncWebsocketConsumer):
                     left_at__isnull=True
                 ).count()
                 stream.save()
+                
+                # Broadcast viewer count update to all clients
+                asyncio.create_task(self.broadcast_viewer_count(stream.viewer_count))
         except LiveStream.DoesNotExist:
             pass
 
