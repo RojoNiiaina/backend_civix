@@ -56,13 +56,11 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_filters',
 
-    'apps.assignements',
     'apps.comments',
     'apps.notification',
     'apps.reports',
     'apps.users',
     'apps.chat',
-    'apps.category',
     'apps.live',
     'rest_framework_simplejwt.token_blacklist',
 ]
@@ -181,7 +179,7 @@ CORS_ALLOW_ALL_ORIGINS = False  # Garder False en production, True seulement pou
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'civix',
+        'NAME': 'civix_db',
         'USER': 'root',
         'PASSWORD': '',
         'HOST': '127.0.0.1',

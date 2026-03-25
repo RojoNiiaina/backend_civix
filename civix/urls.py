@@ -15,8 +15,6 @@ urlpatterns = [
     path('api/reports/', include('apps.reports.urls')),
     path('api/comments/', include('apps.comments.urls')),
     path('api/notifications/', include('apps.notification.urls')),
-    path('api/assignements/', include('apps.assignements.urls')),
-    path('api/categories/', include('apps.category.urls')),
     path("api/chat/", include("apps.chat.urls")),
     path("api/live/", include("apps.live.urls")),
 
