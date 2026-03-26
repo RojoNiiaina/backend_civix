@@ -21,13 +21,15 @@ import django
 django.setup()
 
 import apps.live.routing
+import apps.reports.routing
 
 application = ProtocolTypeRouter({
     "http": get_asgi_application(),
     "websocket": AllowedHostsOriginValidator(
         AuthMiddlewareStack(
             URLRouter(
-                apps.live.routing.websocket_urlpatterns
+                apps.live.routing.websocket_urlpatterns +
+                apps.reports.routing.websocket_urlpatterns
             )
         )
     ),
