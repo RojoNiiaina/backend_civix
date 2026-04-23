@@ -25,6 +25,7 @@ class LiveStream(models.Model):
     ended_at = models.DateTimeField(null=True, blank=True)
     viewer_count = models.PositiveIntegerField(default=0)
     max_viewers = models.PositiveIntegerField(default=0)
+    webrtc_offer = models.JSONField(null=True, blank=True)  # Stocke l'offre WebRTC courante
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     

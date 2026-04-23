@@ -13,6 +13,8 @@ class LiveStreamConsumer(AsyncWebsocketConsumer):
         self.stream_id = self.scope['url_route']['kwargs']['stream_id']
         self.stream_group_name = f'stream_{self.stream_id}'
         self.user = self.scope['user']
+        query_string = self.scope.get('query_string', b'').decode('utf-8')
+        self.is_streamer = 'role=streamer' in query_string
 
         # Join stream group
         await self.channel_layer.group_add(
@@ -24,7 +26,7 @@ class LiveStreamConsumer(AsyncWebsocketConsumer):
         await self.accept()
 
         # Add viewer to stream
-        if self.user.is_authenticated:
+        if self.user.is_authenticated and not self.is_streamer:
             await self.add_viewer()
 
     async def disconnect(self, close_code):
@@ -35,7 +37,7 @@ class LiveStreamConsumer(AsyncWebsocketConsumer):
         )
 
         # Remove viewer from stream
-        if self.user.is_authenticated:
+        if self.user.is_authenticated and not self.is_streamer:
             await self.remove_viewer()
 
     async def receive(self, text_data):
@@ -45,6 +47,8 @@ class LiveStreamConsumer(AsyncWebsocketConsumer):
 
             if message_type == 'chat_message':
                 await self.handle_chat_message(data)
+            elif message_type == 'viewer_join':
+                await self.handle_viewer_join(data)
             elif message_type == 'webrtc_offer':
                 await self.handle_webrtc_offer(data)
             elif message_type == 'webrtc_answer':
@@ -89,50 +93,63 @@ class LiveStreamConsumer(AsyncWebsocketConsumer):
             }
         )
 
+    async def handle_viewer_join(self, data):
+        """Handle viewer join and notify streamer"""
+        if self.is_streamer:
+            return
+
+        await self.channel_layer.group_send(
+            self.stream_group_name,
+            {
+                'type': 'viewer_join_broadcast',
+                'viewerSessionId': data.get('viewerSessionId')
+            }
+        )
+
     async def handle_webrtc_offer(self, data):
         """Handle WebRTC offer from streamer"""
-        stream = await self.get_stream()
-        if stream.streamer != self.user:
+        if not self.is_streamer:
             await self.send_error('Only streamer can send offers')
             return
 
-        # Broadcast offer to all viewers except streamer
+        # Broadcast offer to target viewerSessionId
         await self.channel_layer.group_send(
             self.stream_group_name,
             {
                 'type': 'webrtc_offer_broadcast',
                 'offer': data.get('offer'),
-                'streamer_id': self.user.id
-            },
-            exclude=[self.channel_name]
+                'viewerSessionId': data.get('viewerSessionId')
+            }
         )
 
     async def handle_webrtc_answer(self, data):
         """Handle WebRTC answer from viewer"""
-        # Send answer directly to streamer
+        if self.is_streamer:
+            return
+            
         await self.channel_layer.group_send(
             self.stream_group_name,
             {
-                'type': 'webrtc_answer_to_streamer',
+                'type': 'webrtc_answer_broadcast',
                 'answer': data.get('answer'),
-                'viewer_id': self.user.id
+                'viewerSessionId': data.get('viewerSessionId')
             }
         )
 
     async def handle_webrtc_ice_candidate(self, data):
         """Handle WebRTC ICE candidate"""
         candidate = data.get('candidate')
-        is_streamer = data.get('is_streamer', False)
+        viewerSessionId = data.get('viewerSessionId')
 
-        if is_streamer:
-            # Send candidate to all viewers
+        if self.is_streamer:
+            # Send candidate to viewer
             await self.channel_layer.group_send(
                 self.stream_group_name,
                 {
-                    'type': 'webrtc_ice_candidate_to_viewers',
-                    'candidate': candidate
-                },
-                exclude=[self.channel_name]
+                    'type': 'webrtc_ice_candidate_to_viewer',
+                    'candidate': candidate,
+                    'viewerSessionId': viewerSessionId
+                }
             )
         else:
             # Send candidate to streamer
@@ -141,7 +158,7 @@ class LiveStreamConsumer(AsyncWebsocketConsumer):
                 {
                     'type': 'webrtc_ice_candidate_to_streamer',
                     'candidate': candidate,
-                    'viewer_id': self.user.id
+                    'viewerSessionId': viewerSessionId
                 }
             )
 
@@ -192,40 +209,43 @@ class LiveStreamConsumer(AsyncWebsocketConsumer):
             'message': event['message']
         }))
 
-    async def webrtc_offer_broadcast(self, event):
-        await self.send(text_data=json.dumps({
-            'type': 'webrtc_offer',
-            'offer': event['offer'],
-            'streamer_id': event['streamer_id']
-        }))
+    async def viewer_join_broadcast(self, event):
+        if self.is_streamer:
+            await self.send(text_data=json.dumps({
+                'type': 'viewer_join',
+                'viewerSessionId': event['viewerSessionId']
+            }))
 
-    async def webrtc_answer_to_streamer(self, event):
-        # Only send to streamer
-        stream = await self.get_stream()
-        if self.user == stream.streamer:
+    async def webrtc_offer_broadcast(self, event):
+        if not self.is_streamer:
+            await self.send(text_data=json.dumps({
+                'type': 'webrtc_offer',
+                'offer': event['offer'],
+                'viewerSessionId': event['viewerSessionId']
+            }))
+
+    async def webrtc_answer_broadcast(self, event):
+        if self.is_streamer:
             await self.send(text_data=json.dumps({
                 'type': 'webrtc_answer',
                 'answer': event['answer'],
-                'viewer_id': event['viewer_id']
+                'viewerSessionId': event['viewerSessionId']
             }))
 
-    async def webrtc_ice_candidate_to_viewers(self, event):
-        # Send to all viewers except streamer
-        stream = await self.get_stream()
-        if self.user != stream.streamer:
-            await self.send(text_data=json.dumps({
-                'type': 'webrtc_ice_candidate',
-                'candidate': event['candidate']
-            }))
-
-    async def webrtc_ice_candidate_to_streamer(self, event):
-        # Only send to streamer
-        stream = await self.get_stream()
-        if self.user == stream.streamer:
+    async def webrtc_ice_candidate_to_viewer(self, event):
+        if not self.is_streamer:
             await self.send(text_data=json.dumps({
                 'type': 'webrtc_ice_candidate',
                 'candidate': event['candidate'],
-                'viewer_id': event['viewer_id']
+                'viewerSessionId': event['viewerSessionId']
+            }))
+
+    async def webrtc_ice_candidate_to_streamer(self, event):
+        if self.is_streamer:
+            await self.send(text_data=json.dumps({
+                'type': 'webrtc_ice_candidate',
+                'candidate': event['candidate'],
+                'viewerSessionId': event['viewerSessionId']
             }))
 
     async def stream_status_broadcast(self, event):
@@ -336,3 +356,5 @@ class LiveStreamConsumer(AsyncWebsocketConsumer):
             'type': 'error',
             'message': message
         }))
+
+
