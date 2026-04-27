@@ -122,10 +122,10 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://192.168.43.181:3000",
     "exp://192.168.43.181:8081",
-    "http://192.168.42.150:19006",
-    "exp://192.168.42.150:8081",
-    "http://192.168.0.154:3000",
-    "http://192.168.0.154:8081",
+    "http://192.168.42.77:19006",
+    "exp://192.168.42.77:8081",
+    "http://192.168.0.158:3000",
+    "http://192.168.0.158:8081",
     "http://192.168.0.157:19006",
     "exp://192.168.0.157:8081",
     "exp://192.168.42.245:8001",
@@ -138,10 +138,10 @@ ALLOWED_WS_ORIGINS = [
     "http://localhost:3000",
     "http://192.168.43.181:3000",
     "exp://192.168.43.181:8081",
-    "http://192.168.42.150:19006",
-    "exp://192.168.42.150:8081",
-    "http://192.168.0.154:3000",
-    "http://192.168.0.154:8081",
+    "http://192.168.42.77:19006",
+    "exp://192.168.42.77:8081",
+    "http://192.168.0.158:3000",
+    "http://192.168.0.158:8081",
     "http://192.168.0.157:19006",
     "exp://192.168.0.157:8081",
     "exp://192.168.42.245:8001",
@@ -149,9 +149,9 @@ ALLOWED_WS_ORIGINS = [
     "exp://192.168.42.64:8000"
 ]
 
-# Autoriser les requêtes CORS pour les fichiers médias
+# Dev local : accepter toutes les origines (hotspot/Wi-Fi local, IP variable)
 CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOW_ALL_ORIGINS = False  # Garder False en production, True seulement pour le dev si nécessaire
+CORS_ALLOW_ALL_ORIGINS = True   # ✅ Simplifie le dev LAN (pas besoin de lister chaque IP)
 
 
 # Database
@@ -217,15 +217,8 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-ALLOWED_HOSTS = [
-    "localhost",
-    "192.168.0.154",
-    "192.168.0.157",
-    "127.0.0.1",
-    "192.168.43.181",
-    "192.168.42.143",
-    "192.168.42.245"
-]
+# Dev local : accepter toutes les IP (hotspot — IP change à chaque connexion)
+ALLOWED_HOSTS = ['*']  # ✅ Remplacer par les IP fixes en production
 
 
 
